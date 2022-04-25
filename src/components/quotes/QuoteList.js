@@ -21,6 +21,7 @@ const QuoteList = (props) => {
   const queryParams = new URLSearchParams(location.search);
 
   const isSortingAscending =
+    queryParams.get("sort") &&
     queryParams.get("sort").toLocaleLowerCase() === "asc";
 
   const sortedQuotes = sortQuotes(props.quotes, isSortingAscending);

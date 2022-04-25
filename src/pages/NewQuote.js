@@ -7,6 +7,7 @@ const NewQuote = () => {
 
   const addQuoteHandler = (quoteData) => {
     console.log(quoteData);
+    // console.log(process.env.REACT_APP_BASE_URL);
     history.push("/quotes");
   };
 
