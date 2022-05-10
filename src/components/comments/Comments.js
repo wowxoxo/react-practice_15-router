@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import classes from './Comments.module.css';
+import CommentsList from './CommentsList';
 import NewCommentForm from './NewCommentForm';
 
 const Comments = () => {
@@ -19,7 +20,8 @@ const Comments = () => {
         </button>
       )}
       {isAddingComment && <NewCommentForm />}
-      <p>Comments...</p>
+      {/* <p>Comments...</p> */}
+      <CommentsList></CommentsList>
     </section>
   );
 };

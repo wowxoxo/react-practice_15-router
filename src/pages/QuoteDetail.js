@@ -2,16 +2,32 @@ import React, { Fragment } from "react";
 import { useRouteMatch } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Route, useParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import QuoteService from "../api/QuoteService";
 import Comments from "../components/comments/Comments";
 import HighlightedQuote from "../components/quotes/HighlightedQuote";
-import { DUMMY_QUOTES } from "./AllQuotes";
+import { useFetch } from "../hooks/useFetch";
 
 const QuoteDetail = () => {
   const match = useRouteMatch();
-  console.log(match);
+  // console.log(match);
   const params = useParams();
+  const [quote, setQuote] = useState({})
+  // const quote = DUMMY_QUOTES.find((quote) => quote.id === params.quoteId);
 
-  const quote = DUMMY_QUOTES.find((quote) => quote.id === params.quoteId);
+  const loadQuote = useCallback(async () => {
+    const responce = await QuoteService.getOneQuote(params.quoteId);
+    // console.log(params.quoteId)
+    // console.log(responce)
+    setQuote({ text: responce.text, author: responce.author })
+  }, [params.quoteId])
+
+  const [, , fetchQuote] = useFetch(loadQuote)
+
+  useEffect(() => {
+    fetchQuote()
+  }, [fetchQuote])
+
 
   if (!quote) {
     return <p>No quote found</p>;
