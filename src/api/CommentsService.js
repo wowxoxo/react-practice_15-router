@@ -4,7 +4,7 @@ export default class CommnetService {
     //   `https://react-practice-a3a21-default-rtdb.firebaseio.com/comments.json/?orderBy="quoteId"&equalTo="${quoteId}"`);
 
     const responce = await fetch(
-      `https://react-practice-a3a21-default-rtdb.firebaseio.com/comments.json`);
+      `${process.env.REACT_APP_BASE_URL}/comments/${quoteId}.json`);
 
     if (!responce.ok) {
       throw new Error("Request failed!");
@@ -17,7 +17,7 @@ export default class CommnetService {
 
   static async addComment(text, quoteId) {
     const response = await fetch(
-      "https://react-practice-a3a21-default-rtdb.firebaseio.com/comments.json", {
+      `${process.env.REACT_APP_BASE_URL}/comments/${quoteId}.json`, {
       method: "Post",
       headers: {
         "Conten-type": "application/json"

@@ -8,6 +8,9 @@ const NewCommentForm = (props) => {
   const commentTextRef = useRef();
   const params = useParams();
 
+  const { quoteId } = params
+  const { onAddedComment } = props
+
   const submitFormHandler = useCallback(async(event) => {
     event.preventDefault();
 
@@ -15,11 +18,14 @@ const NewCommentForm = (props) => {
 
     // send comment to server
     // console.log(params.quoteId)
-    await CommnetService.addComment(commentTextRef?.current?.value, params.quoteId)
+    const response = await CommnetService.addComment(commentTextRef?.current?.value, quoteId)
     commentTextRef.current.value = ""
+    if (response) {
+      onAddedComment()
+    }
     // history.push(`${params.quoteId}/comments`)
     // console.log(response)
-  },[params.quoteId]);
+  },[quoteId, onAddedComment]);
 
   const [, , addComment] = useFetch(submitFormHandler)
 
