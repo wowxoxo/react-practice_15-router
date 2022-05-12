@@ -2,49 +2,57 @@ import React, { Fragment } from "react";
 import { useRouteMatch } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Route, useParams } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
-import QuoteService from "../api/QuoteService";
+import { useEffect } from "react";
 import Comments from "../components/comments/Comments";
 import HighlightedQuote from "../components/quotes/HighlightedQuote";
-import { useFetch } from "../hooks/useFetch";
+import { useFetch2 } from "../hooks/useFetch2";
+import { QuoteService2 } from "../api/QuoteService";
+import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const QuoteDetail = () => {
   const match = useRouteMatch();
-  // console.log(match);
   const params = useParams();
-  const [quote, setQuote] = useState({})
-  // const quote = DUMMY_QUOTES.find((quote) => quote.id === params.quoteId);
 
-  const loadQuote = useCallback(async () => {
-    const responce = await QuoteService.getOneQuote(params.quoteId);
-    // console.log(params.quoteId)
-    // console.log(responce)
-    setQuote({ text: responce.text, author: responce.author })
-  }, [params.quoteId])
+  const { quoteId } = params;
 
-  const [, , fetchQuote] = useFetch(loadQuote)
+  const {
+    sendRequest,
+    status,
+    data: loadedQuote,
+    error
+  } = useFetch2(QuoteService2.getSingleQuote, true);
 
   useEffect(() => {
-    fetchQuote()
-  }, [fetchQuote])
+    sendRequest(quoteId);
+  }, [sendRequest, quoteId]);
 
+  if (status === "pending") {
+    return (
+      <div className="centered">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
-  if (!quote) {
-    return <p>No quote found</p>;
+  if (error) {
+    return <p className="centered">{error}</p>;
+  }
+
+  if (!loadedQuote.text) {
+    return <p>No quote found!</p>;
   }
 
   return (
     <Fragment>
-      <h1>Quote detail</h1>
-      <HighlightedQuote text={quote.text} author={quote.author} />
+      <HighlightedQuote text={loadedQuote.text} author={loadedQuote.author} />
       <Route path={match.path} exact>
         <div className="centered">
-          <Link to={`${match.url}/comments`} className="btn--flat">
-            Load comments
+          <Link className="btn--flat" to={`${match.url}/comments`}>
+            Load Comments
           </Link>
         </div>
       </Route>
-      <Route path={`${match.path}/comments`} exact>
+      <Route path={`${match.path}/comments`}>
         <Comments />
       </Route>
     </Fragment>

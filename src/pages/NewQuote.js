@@ -1,25 +1,27 @@
-import React from "react";
+import { useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { useCallback } from "react";
+
 import QuoteForm from "../components/quotes/QuoteForm";
-import { useFetch } from "../hooks/useFetch";
-import QuoteService from "../api/QuoteService";
+import { useFetch2 } from "../hooks/useFetch2";
+import { QuoteService2 } from "../api/QuoteService";
 
 const NewQuote = () => {
+  const { sendRequest, status } = useFetch2(QuoteService2.addQuote);
   const history = useHistory();
 
+  useEffect(() => {
+    if (status === "completed") {
+      history.push("/quotes");
+    }
+  }, [status, history]);
 
-  const addQuoteHandler = useCallback(async (quoteData) => {
-    console.log(quoteData);
-    // console.log(process.env.REACT_APP_BASE_URL);
-    await QuoteService.addNewQuote(quoteData.text, quoteData.author)
-    history.push("/quotes");
-  }, [history]);
+  const addQuoteHandler = (quoteData) => {
+    sendRequest(quoteData);
+  };
 
-  const [, , enterQuoteHandler] = useFetch(addQuoteHandler)
-
-
-  return <QuoteForm onAddQuote={enterQuoteHandler} />;
+  return (
+    <QuoteForm isLoading={status === "pending"} onAddQuote={addQuoteHandler} />
+  );
 };
 
 export default NewQuote;

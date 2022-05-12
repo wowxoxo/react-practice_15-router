@@ -1,36 +1,40 @@
 import React from "react";
-import { useCallback, useEffect, useState } from "react";
-import QuoteService from "../api/QuoteService";
+import { useEffect } from "react";
 import QuoteList from "../components/quotes/QuoteList";
-import { useFetch } from "../hooks/useFetch";
-
+import LoadingSpinner from "../components/UI/LoadingSpinner";
+import NoQuotesFound from "../components/quotes/NoQuotesFound";
+import { useFetch2 } from "../hooks/useFetch2";
+import { QuoteService2 } from "../api/QuoteService";
 
 const AllQuotes = () => {
-  const [quotes, setQuotes] = useState([])
-
-  const transformAndSetQuotes = useCallback((quotesObj) => {
-    const loadedQuotes = [];
-    console.log(quotesObj)
-    for (const quoteKey in quotesObj) {
-      loadedQuotes.push({ id: quoteKey, text: quotesObj[quoteKey].text, author: quotesObj[quoteKey].author })
-    }
-
-    setQuotes(loadedQuotes)
-  }, [])
-
-  const loadQuotes = useCallback(async () => {
-    const responce = await QuoteService.getAllQuotes();
-    transformAndSetQuotes(responce);
-  }, [transformAndSetQuotes])
-
-  const [, , fetchQuotes] = useFetch(loadQuotes)
-
+  const {
+    sendRequest,
+    status,
+    data: loadedQuotes,
+    error
+  } = useFetch2(QuoteService2.getAllQuotes, true);
 
   useEffect(() => {
-    fetchQuotes();
-  }, [fetchQuotes])
+    sendRequest();
+  }, [sendRequest]);
 
-  return <QuoteList quotes={quotes} />;
+  if (status === "pending") {
+    return (
+      <div className="centered">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="centered focused">{error}</p>;
+  }
+
+  if (status === "completed" && (!loadedQuotes || loadedQuotes.length === 0)) {
+    return <NoQuotesFound />;
+  }
+
+  return <QuoteList quotes={loadedQuotes} />;
 };
 
 export default AllQuotes;
